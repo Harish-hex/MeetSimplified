@@ -66,6 +66,17 @@ def get_indexed_meetings() -> List[str]:
     return list(_index.keys())
 
 
+def get_full_transcript(meeting_id: str) -> str:
+    """Reconstructs the full transcript text from the indexed segments."""
+    if meeting_id not in _index:
+        raise ValueError(f"Meeting {meeting_id} is not indexed.")
+    
+    lines = []
+    for seg in sorted(_index[meeting_id], key=lambda s: s.segment_id):
+        lines.append(f"[segment {seg.segment_id}] {seg.speaker}: {seg.text}")
+    return "\n".join(lines)
+
+
 # ── OpenAI client (shared with analyze.py) ───────────────────────────
 
 _client: Optional[OpenAI] = None

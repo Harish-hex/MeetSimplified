@@ -386,3 +386,49 @@ def analyze_meeting(meeting: Meeting, focus_topic: Optional[str] = None) -> Unio
             warnings=warnings,
         ),
     )
+
+
+# ── Targeted Regeneration ────────────────────────────────────────────
+
+REGENERATE_PROMPT = """\
+You are an expert meeting analyst refining a specific section of a meeting analysis.
+The user has requested to regenerate the "{section}" section.
+User instruction: {instruction}
+
+CRITICAL RULES:
+1. Read the provided transcript carefully to generate the response.
+2. Every factual claim MUST cite segment numbers using [cite: N] format.
+3. Return ONLY valid JSON matching the exact requested structure.
+4. Ensure you fully address the user's custom instruction.
+5. If the required JSON structure contains an array, return multiple distinct elements in the array whenever possible, avoiding cramming everything into a single string.
+6. When generating "meeting_summary", respond with a list of discrete, concise bullet points as strings.
+
+EXPECTED JSON STRUCTURE for this section:
+{expected_json}
+"""
+
+EXPECTED_JSON_MAP = {
+    "summary": '{"meeting_summary": ["<bullet point 1 [cite: N]>", "<bullet point 2 [cite: N]>", ...]}',
+    "decisions": '{"key_decisions": [{"id": 1, "title": "<title>", "description": "<detail [cite: N]>"}]}',
+    "action_items": '{"action_items": [{"id": 1, "task": "<task>", "owner": "<name>", "due_date": "<date>", "evidence": "<quote [cite: N]>"}]}',
+    "risks": '{"risks_and_open_questions": [{"id": 1, "title": "<title>", "description": "<detail [cite: N]>"}]}'
+}
+
+
+def regenerate_section(meeting_id: str, section: str, instruction: str) -> dict:
+    """Regenerates a specific section of the analysis using the cached transcript."""
+    import rag
+
+    transcript = rag.get_full_transcript(meeting_id)
+    if section not in EXPECTED_JSON_MAP:
+        raise ValueError(f"Unknown section: {section}")
+
+    sys_prompt = REGENERATE_PROMPT.format(
+        section=section,
+        instruction=instruction or "Improve this section based on the transcript.",
+        expected_json=EXPECTED_JSON_MAP[section],
+    )
+    user_content = f"TRANSCRIPT:\n{transcript}"
+
+    logger.info("Regenerating section '%s' for meeting %s", section, meeting_id)
+    return _call_llm(sys_prompt, user_content)

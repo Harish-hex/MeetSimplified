@@ -262,8 +262,31 @@ async def chat_with_meeting(meeting_id: str, req: ChatRequest):
         response = rag.answer_question(meeting_id, req.question)
         return response
     except Exception as e:
-        logger.error("Chat error for %s: %s", meeting_id, e, exc_info=True)
         raise HTTPException(status_code=500, detail=f"Chat failed: {e}")
+
+
+class RegenerateRequest(BaseModel):
+    section: str
+    instruction: Optional[str] = None
+
+
+@app.post("/regenerate/{meeting_id}")
+async def regenerate_section_endpoint(meeting_id: str, req: RegenerateRequest):
+    """Regenerate a specific section of the analysis using custom instructions."""
+    if not rag.is_indexed(meeting_id):
+        raise HTTPException(
+            status_code=400,
+            detail="Meeting is not yet indexed or analysis is still finishing."
+        )
+
+    try:
+        from analyze import regenerate_section
+        return regenerate_section(meeting_id, req.section, req.instruction or "")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error("Regenerate error for %s: %s", meeting_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Regeneration failed: {e}")
 
 
 # ── Run with: python3 main.py ────────────────────────────────────────

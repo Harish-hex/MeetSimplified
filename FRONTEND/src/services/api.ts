@@ -130,4 +130,28 @@ export async function chatWithMeeting(
     }
 
     return res.json();
+    return res.json();
+}
+
+/**
+ * Regenerate a specific section of the analysis using custom instructions.
+ */
+export async function regenerateSection(
+    meetingId: string,
+    section: "summary" | "decisions" | "action_items" | "risks",
+    instruction?: string
+) {
+    const res = await fetch(`${API_BASE}/regenerate/${meetingId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, instruction }),
+    });
+
+    if (!res.ok) {
+        const errorBody = await res.json().catch(() => null);
+        const detail = errorBody?.detail || `Server error (${res.status})`;
+        throw new Error(detail);
+    }
+
+    return res.json();
 }
