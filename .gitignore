@@ -1,0 +1,56 @@
+# Environment variable files
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+.venv/
+env/
+.env/
+
+# Node/Frontend
+node_modules/
+FRONTEND/node_modules/
+FRONTEND/dist/
+.DS_Store
+
+# Synthetix specific logs / results
+results/
+logs/
+.pytest_cache/
+.tox/
+coverage.xml
+*.cover
+.coverage
+htmlcov/
+.idea/
+.vscode/
+WhatsApp Image*
+ami_public_manual_1-2/
+test-clean.json
+meetings/
