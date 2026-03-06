@@ -23,7 +23,7 @@ from ingest import load_transcript
 from models import AnalyzeResponse, FailsafeResponse
 
 # Path to the AMI corpus (relative to working directory)
-AMI_CORPUS_DIR = Path("ami_public_manual_1-2")
+AMI_CORPUS_DIR = Path("ami_public_manual_1.6.2")
 
 # ── Logging ──────────────────────────────────────────────────────────
 
@@ -69,6 +69,7 @@ async def analyze(
     file: UploadFile = File(..., description="Transcript file (.txt or .json)"),
     meeting_date: Optional[str] = Form(None, description="Optional meeting date"),
     attendees: Optional[str] = Form(None, description="Comma-separated attendee names"),
+    focus_topic: Optional[str] = Form(None, description="Optional focus topic to filter analysis"),
 ) -> Union[AnalyzeResponse, FailsafeResponse]:
     """
     Analyze a meeting transcript and return structured insights.
@@ -129,7 +130,7 @@ async def analyze(
     )
 
     try:
-        result = analyze_meeting(meeting)
+        result = analyze_meeting(meeting, focus_topic=focus_topic)
     except RuntimeError as e:
         # e.g., missing API key
         raise HTTPException(status_code=500, detail=str(e))
@@ -170,6 +171,7 @@ async def analyze_ami_meeting(
     background_tasks: BackgroundTasks,
     meeting_date: Optional[str] = Form(None),
     attendees: Optional[str] = Form(None),
+    focus_topic: Optional[str] = Form(None),
 ) -> Union[AnalyzeResponse, FailsafeResponse]:
     """
     Convert an AMI corpus meeting from XML and analyze it in one step.
@@ -219,7 +221,7 @@ async def analyze_ami_meeting(
     )
 
     try:
-        result = analyze_meeting(meeting)
+        result = analyze_meeting(meeting, focus_topic=focus_topic)
         result.meeting_id = meeting_id  # Force the ID to match the route param
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))

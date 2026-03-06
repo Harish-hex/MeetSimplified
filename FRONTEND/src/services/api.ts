@@ -44,7 +44,8 @@ export async function listMeetings(): Promise<MeetingEntry[]> {
 export async function analyzeTranscript(
     file: File,
     meetingDate?: string,
-    attendees?: string
+    attendees?: string,
+    focusTopic?: string
 ): Promise<AnalysisResult> {
     const formData = new FormData();
     formData.append("file", file);
@@ -54,6 +55,9 @@ export async function analyzeTranscript(
     }
     if (attendees) {
         formData.append("attendees", attendees);
+    }
+    if (focusTopic) {
+        formData.append("focus_topic", focusTopic);
     }
 
     const res = await fetch(`${API_BASE}/analyze`, {
@@ -77,7 +81,8 @@ export async function analyzeTranscript(
 export async function analyzeMeetingById(
     meetingId: string,
     meetingDate?: string,
-    attendees?: string
+    attendees?: string,
+    focusTopic?: string
 ): Promise<AnalysisResult> {
     const formData = new FormData();
 
@@ -86,6 +91,9 @@ export async function analyzeMeetingById(
     }
     if (attendees) {
         formData.append("attendees", attendees);
+    }
+    if (focusTopic) {
+        formData.append("focus_topic", focusTopic);
     }
 
     const res = await fetch(`${API_BASE}/analyze/meeting/${meetingId}`, {

@@ -158,7 +158,7 @@ def _call_llm(system_prompt: str, user_content: str) -> dict:
 # ── Pass 1: Extraction ───────────────────────────────────────────────
 
 
-def _extract(meeting: Meeting) -> dict:
+def _extract(meeting: Meeting, focus_topic: Optional[str] = None) -> dict:
     """Run the LLM extraction pass on the transcript."""
     context_parts: List[str] = []
 
@@ -166,6 +166,20 @@ def _extract(meeting: Meeting) -> dict:
         context_parts.append(f"Meeting Date: {meeting.meeting_date}")
     if meeting.attendees:
         context_parts.append(f"Known Attendees: {', '.join(meeting.attendees)}")
+    if focus_topic:
+        context_parts.append(
+            f"FOCUS TOPIC: '{focus_topic}'. "
+            f"Search the transcript specifically for any discussion, decisions, "
+            f"action items, or risks related to '{focus_topic}'. "
+            f"If the transcript contains information about this topic, provide "
+            f"a focused analysis on it. "
+            f"If '{focus_topic}' is NOT discussed or mentioned anywhere in the "
+            f"transcript, set \"focus_topic_found\" to false in your JSON "
+            f"response, set meeting_summary to a single item explaining that "
+            f"this topic was not found, and leave key_decisions, "
+            f"risks_and_open_questions, and action_items as empty arrays. "
+            f"Add \"focus_topic_found\": true or false to your JSON response."
+        )
 
     context_parts.append(
         f"Total Duration: {meeting.total_duration_human} "
@@ -196,7 +210,7 @@ def _verify(meeting: Meeting, extraction: dict) -> dict:
 # ── Main Pipeline ────────────────────────────────────────────────────
 
 
-def analyze_meeting(meeting: Meeting) -> Union[AnalyzeResponse, FailsafeResponse]:
+def analyze_meeting(meeting: Meeting, focus_topic: Optional[str] = None) -> Union[AnalyzeResponse, FailsafeResponse]:
     """
     Run the full two-pass analysis pipeline.
 
@@ -208,7 +222,7 @@ def analyze_meeting(meeting: Meeting) -> Union[AnalyzeResponse, FailsafeResponse
 
     # ── Pass 1: Extraction ───────────────────────────────────────
     try:
-        extraction = _extract(meeting)
+        extraction = _extract(meeting, focus_topic=focus_topic)
     except Exception as e:
         logger.error("Extraction failed: %s", e)
         return FailsafeResponse(
@@ -329,6 +343,31 @@ def analyze_meeting(meeting: Meeting) -> Union[AnalyzeResponse, FailsafeResponse
             evidence=a.get("evidence", ""),
         ))
 
+    # ── Check if focus topic was found ─────────────────────────────
+    focus_found = extraction.get("focus_topic_found")
+    if focus_topic and focus_found is False:
+        return AnalyzeResponse(
+            confidence_score=confidence,
+            confidence_label=confidence_label,
+            meeting_summary=[
+                f"No information about '{focus_topic}' was found in this transcript. "
+                "The meeting did not discuss this topic."
+            ],
+            key_decisions=[],
+            risks_and_open_questions=[],
+            action_items=[],
+            focus_topic_found=False,
+            metadata=Metadata(
+                model=config.MODEL_NAME,
+                total_duration_sec=meeting.total_duration_sec,
+                total_duration_human=meeting.total_duration_human,
+                speakers_detected=speakers,
+                processing_time_sec=elapsed,
+                segment_count=len(meeting.segments),
+                warnings=[f"Focus topic '{focus_topic}' was not found in the transcript."],
+            ),
+        )
+
     return AnalyzeResponse(
         confidence_score=confidence,
         confidence_label=confidence_label,
@@ -336,6 +375,7 @@ def analyze_meeting(meeting: Meeting) -> Union[AnalyzeResponse, FailsafeResponse
         key_decisions=decisions,
         risks_and_open_questions=risks,
         action_items=actions,
+        focus_topic_found=True if focus_topic else None,
         metadata=Metadata(
             model=config.MODEL_NAME,
             total_duration_sec=meeting.total_duration_sec,

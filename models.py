@@ -69,6 +69,7 @@ class FailsafeResponse(BaseModel):
         "structure, or contains insufficient dialogue for meaningful analysis."
     )
     issues: List[str] = Field(default_factory=list)
+    focus_topic_found: Optional[bool] = None
     metadata: Metadata = Field(default_factory=Metadata)
 
 
@@ -90,6 +91,7 @@ class AnalyzeResponse(BaseModel):
     key_decisions: List[Decision] = Field(default_factory=list)
     risks_and_open_questions: List[RiskOrQuestion] = Field(default_factory=list)
     action_items: List[ActionItem] = Field(default_factory=list)
+    focus_topic_found: Optional[bool] = None
     metadata: Metadata = Field(default_factory=Metadata)
 
 

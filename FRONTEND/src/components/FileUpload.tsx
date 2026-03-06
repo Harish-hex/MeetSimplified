@@ -53,21 +53,21 @@ const FileUpload = ({ onFileSelect, selectedFile, onClear }: FileUploadProps) =>
     return (
       <div className="glass-card p-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/20 shrink-0">
-            <FileText className="w-5 h-5 text-primary" />
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-white/20 shrink-0">
+            <FileText className="w-5 h-5 text-white" />
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium truncate">{selectedFile.name}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-white/50">
               {(selectedFile.size / 1024).toFixed(1)} KB
             </p>
           </div>
         </div>
         <button
           onClick={onClear}
-          className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/50 transition-colors"
+          className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors"
         >
-          <X className="w-4 h-4 text-muted-foreground" />
+          <X className="w-4 h-4 text-white/50" />
         </button>
       </div>
     );
@@ -80,15 +80,15 @@ const FileUpload = ({ onFileSelect, selectedFile, onClear }: FileUploadProps) =>
       onDragOver={handleDrag}
       onDrop={handleDrop}
       className={`glass-card flex flex-col items-center justify-center gap-3 p-8 cursor-pointer transition-all duration-300 ${
-        isDragging ? "bg-primary/10 border-primary/40" : "hover:bg-muted/30"
+        isDragging ? "bg-white/10 border-white/40" : "hover:bg-white/10"
       }`}
     >
-      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-primary/10">
-        <Upload className="w-6 h-6 text-primary" />
+      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-white/10">
+        <Upload className="w-6 h-6 text-white" />
       </div>
       <div className="text-center">
         <p className="text-sm font-medium">Drop your transcript here</p>
-        <p className="text-xs text-muted-foreground mt-1">.txt or .json files accepted</p>
+        <p className="text-xs text-white/50 mt-1">.txt or .json files accepted</p>
       </div>
       <input
         type="file"

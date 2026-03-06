@@ -14,9 +14,9 @@ const Report = () => {
     return (
       <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-1/4 -left-1/4 w-[600px] h-[600px] rounded-full bg-primary/8 blur-[120px] animate-pulse-glow" />
+          <div className="absolute -top-1/4 -left-1/4 w-[600px] h-[600px] rounded-full bg-black/3 blur-[120px] animate-pulse-glow" />
         </div>
-        <div className="relative z-10 glass-card p-8 text-center max-w-md">
+        <div className="relative z-10 rounded-2xl border border-black/10 bg-white p-8 text-center max-w-md shadow-sm">
           <h2 className="font-heading font-semibold text-lg mb-2">No Analysis Data</h2>
           <p className="text-sm text-muted-foreground mb-4">
             Upload and analyze a transcript first.
@@ -36,8 +36,8 @@ const Report = () => {
     <div className="min-h-screen relative overflow-hidden">
       {/* Ambient blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-1/4 -left-1/4 w-[600px] h-[600px] rounded-full bg-primary/8 blur-[120px] animate-pulse-glow" />
-        <div className="absolute -bottom-1/4 -right-1/4 w-[500px] h-[500px] rounded-full bg-accent/6 blur-[120px] animate-pulse-glow" style={{ animationDelay: "1s" }} />
+        <div className="absolute -top-1/4 -left-1/4 w-[600px] h-[600px] rounded-full bg-black/3 blur-[120px] animate-pulse-glow" />
+        <div className="absolute -bottom-1/4 -right-1/4 w-[500px] h-[500px] rounded-full bg-black/2 blur-[120px] animate-pulse-glow" style={{ animationDelay: "1s" }} />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
@@ -50,7 +50,7 @@ const Report = () => {
         >
           <button
             onClick={() => navigate("/")}
-            className="glass-card w-10 h-10 flex items-center justify-center shrink-0 hover:bg-muted/30 transition-colors"
+            className="glass-card w-10 h-10 flex items-center justify-center shrink-0 hover:bg-white/10 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
@@ -58,7 +58,7 @@ const Report = () => {
             <h1 className="text-2xl lg:text-3xl font-heading font-bold gradient-text">
               Analysis Report
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-black/50 mt-1">
               AI-generated insights from your meeting transcript
             </p>
           </div>
@@ -74,7 +74,7 @@ const Report = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
-            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground/80">
+            <div className="flex flex-wrap gap-4 text-xs text-white/60">
               <span>Model: {data.metadata.model}</span>
               <span>Duration: {data.metadata.total_duration_human}</span>
               <span>Segments: {data.metadata.segment_count}</span>

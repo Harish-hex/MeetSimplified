@@ -14,9 +14,9 @@ const ConfidenceGauge = ({
 
   // Color based on confidence level
   const getColor = () => {
-    if (value >= 70) return { start: "hsl(250 80% 65%)", end: "hsl(200 90% 60%)" };
-    if (value >= 40) return { start: "hsl(45 90% 55%)", end: "hsl(35 90% 50%)" };
-    return { start: "hsl(0 80% 60%)", end: "hsl(15 80% 55%)" };
+    if (value >= 70) return { start: "hsl(0 0% 15%)", end: "hsl(0 0% 35%)" };
+    if (value >= 40) return { start: "hsl(0 0% 40%)", end: "hsl(0 0% 55%)" };
+    return { start: "hsl(0 0% 60%)", end: "hsl(0 0% 75%)" };
   };
 
   const colors = getColor();
@@ -66,7 +66,7 @@ const ConfidenceGauge = ({
       </div>
       <div>
         <h3 className="font-heading font-semibold text-lg">Confidence Score</h3>
-        <p className="text-sm text-muted-foreground mt-1">{label}</p>
+        <p className="text-sm muted-text mt-1">{label}</p>
       </div>
     </div>
   );

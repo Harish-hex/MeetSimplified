@@ -81,19 +81,19 @@ export default function ChatPanel({ meetingId }: ChatPanelProps) {
 
             <div className="flex-1 overflow-y-auto p-4 space-y-5">
                 {messages.length === 0 && (
-                    <div className="h-full flex flex-col items-center justify-center text-muted-foreground/60 space-y-4">
+                    <div className="h-full flex flex-col items-center justify-center text-white/50 space-y-4">
                         <MessageSquare className="w-8 h-8 opacity-50 text-primary" />
                         <p className="text-sm">Ask anything about this meeting</p>
                         <div className="flex flex-col gap-2 mt-2 w-full max-w-sm">
                             <button
                                 onClick={() => setInput("What was decided about pricing?")}
-                                className="text-xs px-3 py-2.5 rounded-lg bg-black/30 border border-white/5 hover:border-primary/30 transition-colors text-left text-muted-foreground/80"
+                                className="text-xs px-3 py-2.5 rounded-lg bg-black/30 border border-white/5 hover:border-primary/30 transition-colors text-left text-white/60"
                             >
                                 "What was decided about pricing?"
                             </button>
                             <button
                                 onClick={() => setInput("Who is responsible for the design?")}
-                                className="text-xs px-3 py-2.5 rounded-lg bg-black/30 border border-white/5 hover:border-primary/30 transition-colors text-left text-muted-foreground/80"
+                                className="text-xs px-3 py-2.5 rounded-lg bg-black/30 border border-white/5 hover:border-primary/30 transition-colors text-left text-white/60"
                             >
                                 "Who is responsible for the design?"
                             </button>
@@ -114,7 +114,7 @@ export default function ChatPanel({ meetingId }: ChatPanelProps) {
                         >
                             <div className="bg-black/30 border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-2">
                                 <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                                <span className="text-sm text-muted-foreground">Searching transcript...</span>
+                                <span className="text-sm text-white/60">Searching transcript...</span>
                             </div>
                         </motion.div>
                     )}
@@ -130,7 +130,7 @@ export default function ChatPanel({ meetingId }: ChatPanelProps) {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSend()}
                         placeholder="Type your question..."
-                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-4 pr-12 py-3.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted-foreground/50"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-4 pr-12 py-3.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-white/40"
                         disabled={isTyping}
                     />
                     <button
@@ -189,7 +189,7 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
                 <div className="mt-2 w-full max-w-full">
                     <button
                         onClick={() => setShowSources(!showSources)}
-                        className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors pl-1"
+                        className="flex items-center gap-1.5 text-[11px] text-white/50 hover:text-primary transition-colors pl-1"
                     >
                         {showSources ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                         {showSources ? "Hide sources" : `View ${msg.sources.length} source segments`}
@@ -205,7 +205,7 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
                             >
                                 <div className="space-y-1.5 pl-1 ml-1.5 border-l-2 border-primary/20">
                                     {msg.sources.map((src, i) => (
-                                        <div key={i} className="bg-black/20 rounded p-2.5 text-[11px] text-muted-foreground/80">
+                                        <div key={i} className="bg-black/20 rounded p-2.5 text-[11px] text-white/60">
                                             <div className="flex justify-between items-center mb-1">
                                                 <span className="font-semibold text-primary/70">{src.speaker}</span>
                                                 <span className="text-[9px] opacity-40">Seg {src.segment_id}</span>

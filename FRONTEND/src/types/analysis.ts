@@ -41,6 +41,7 @@ export interface AnalyzeResponse {
     key_decisions: Decision[];
     risks_and_open_questions: RiskOrQuestion[];
     action_items: ActionItem[];
+    focus_topic_found?: boolean | null;
     metadata: Metadata;
 }
 
@@ -51,6 +52,7 @@ export interface FailsafeResponse {
     confidence_label: string;
     message: string;
     issues: string[];
+    focus_topic_found?: boolean | null;
     metadata: Metadata;
 }
 
