@@ -23,7 +23,7 @@ from ingest import load_transcript
 from models import AnalyzeResponse, FailsafeResponse
 
 # Path to the AMI corpus (relative to working directory)
-AMI_CORPUS_DIR = Path("ami_public_manual_1.6.2")
+AMI_CORPUS_DIR = Path("Synthetix-4.0/ami_public_manual_1.6.2")
 
 # ── Logging ──────────────────────────────────────────────────────────
 

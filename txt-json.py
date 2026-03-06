@@ -48,7 +48,6 @@ def parse_transcript_to_json(
 
     structured_data: list[dict] = []
     skipped_lines: list[dict] = []
-
     # State for accumulating multi-line dialogue.
     current_speaker: str | None = None
     current_text_parts: list[str] = []

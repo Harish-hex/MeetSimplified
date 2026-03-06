@@ -83,6 +83,7 @@
   .glass-card-hover {
     @apply glass-card transition-all duration-300;
   }
+
   .glass-card-hover:hover {
     background: hsl(0 0% 0% / 0.85);
     border-color: hsl(0 0% 0% / 0.3);
@@ -102,10 +103,12 @@
     box-shadow: 0 4px 20px -4px hsl(0 0% 0% / 0.2);
     transition: all 0.3s ease;
   }
+
   .btn-gradient:hover {
     box-shadow: 0 6px 28px -4px hsl(0 0% 0% / 0.35);
     transform: translateY(-1px);
   }
+
   .btn-gradient:disabled {
     opacity: 0.6;
     transform: none;

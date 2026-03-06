@@ -20,13 +20,27 @@ const Upload = () => {
   const [date, setDate] = useState<Date>();
   const [attendees, setAttendees] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const handleAnalyze = async () => {
     if (!file) return;
 
     setIsAnalyzing(true);
+    setProgress(0);
     setError(null);
+
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      setProgress((prev) => {
+        if (prev < 30) return prev + 2;
+        if (prev < 60) return prev + 1;
+        if (prev < 85) return prev + 0.5;
+        if (prev < 95) return prev + 0.1;
+        return 95;
+      });
+    }, 200);
 
     try {
       const meetingDate = date ? format(date, "yyyy-MM-dd") : undefined;
@@ -35,13 +49,19 @@ const Upload = () => {
         meetingDate,
         attendees || undefined
       );
-      // Navigate to report page with the data
-      navigate("/report", { state: { data } });
+
+      setProgress(100);
+      setTimeout(() => {
+        navigate("/report", { state: { data } });
+      }, 500);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Analysis failed. Please try again."
       );
       setIsAnalyzing(false);
+      setProgress(0);
+    } finally {
+      clearInterval(interval);
     }
   };
 
@@ -153,18 +173,19 @@ const Upload = () => {
 
           {isAnalyzing && (
             <div className="space-y-2">
-              <div className="h-1 rounded-full bg-muted overflow-hidden">
+              <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                <span>Processing transcript with AI...</span>
+                <span>{Math.round(progress)}%</span>
+              </div>
+              <div className="h-2 rounded-full bg-muted overflow-hidden relative">
                 <motion.div
-                  className="h-full rounded-full"
+                  className="h-full rounded-full absolute left-0 top-0"
                   style={{ background: "var(--gradient-accent)" }}
                   initial={{ width: "0%" }}
-                  animate={{ width: "90%" }}
-                  transition={{ duration: 25, ease: "easeOut" }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.2, ease: "linear" }}
                 />
               </div>
-              <p className="text-xs text-center text-muted-foreground">
-                Processing transcript with AI...
-              </p>
             </div>
           )}
 

@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useState, useRef, useCallback } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import ConfidenceGauge from "./ConfidenceGauge";
@@ -19,7 +18,7 @@ import {
   Loader2,
   SearchX,
 } from "lucide-react";
-import type { AnalysisResult, FailsafeResponse } from "@/types/analysis";
+import type { AnalysisResult, FailsafeResponse, AnalyzeResponse } from "@/types/analysis";
 
 interface AnalysisResultsProps {
   data: AnalysisResult;
@@ -47,8 +46,8 @@ const GlassSection = ({
   return (
     <motion.div
       className={`rounded-2xl p-6 transition-colors duration-500 ${isDark
-          ? "bg-black text-white [&_.muted-text]:text-white/50"
-          : "bg-white text-black border border-black/10 shadow-sm [&_.muted-text]:text-black/50"
+        ? "bg-black text-white [&_.muted-text]:text-white/50"
+        : "bg-white text-black border border-black/10 shadow-sm [&_.muted-text]:text-black/50"
         } ${className}`}
       custom={index}
       initial="hidden"
@@ -122,6 +121,22 @@ const AnalysisResults = ({ data }: AnalysisResultsProps) => {
       setIsDownloading(false);
     }
   }, [data.meeting_id]);
+  const meetingId = data.meeting_id ?? "unknown";
+
+  // Local state for regenerated sections (only mounts if success === true)
+  const [localSummary, setLocalSummary] = useState((data as AnalyzeResponse).meeting_summary || []);
+  const [localDecisions, setLocalDecisions] = useState((data as AnalyzeResponse).key_decisions || []);
+  const [localRisks, setLocalRisks] = useState((data as AnalyzeResponse).risks_and_open_questions || []);
+  const [localActionItems, setLocalActionItems] = useState((data as AnalyzeResponse).action_items || []);
+
+  // Reset local state if 'data' prop entirely changes (new meeting analyzed)
+  useEffect(() => {
+    setLocalSummary((data as AnalyzeResponse).meeting_summary || []);
+    setLocalDecisions((data as AnalyzeResponse).key_decisions || []);
+    setLocalRisks((data as AnalyzeResponse).risks_and_open_questions || []);
+    setLocalActionItems((data as AnalyzeResponse).action_items || []);
+  }, [data]);
+
   // ── Failsafe Response ──────────────────────────────────────
   if (!data.success) {
     const failsafe = data as FailsafeResponse;
@@ -138,11 +153,27 @@ const AnalysisResults = ({ data }: AnalysisResultsProps) => {
           </button>
         </div>
         <div ref={reportRef} className="space-y-5">
-          <GlassSection index={0}>
+          <GlassSection index={0} className="flex flex-col">
             <ConfidenceGauge
               value={data.confidence_score}
               label={data.confidence_label}
             />
+            {data.metadata && (
+              <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-4 items-end">
+                <div>
+                  <p className="text-[11px] font-medium text-white/50 uppercase tracking-wider mb-1">Meeting Duration</p>
+                  <p className="text-xl font-heading font-semibold text-white">
+                    {data.metadata.total_duration_human || "Unknown"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-medium text-white/50 uppercase tracking-wider mb-1">Participants</p>
+                  <p className="text-xl font-heading font-semibold text-white">
+                    {data.metadata.speakers_detected?.length || 0}
+                  </p>
+                </div>
+              </div>
+            )}
           </GlassSection>
 
           <GlassSection index={1} className="border-l-2 border-l-amber-500/50">
@@ -161,7 +192,7 @@ const AnalysisResults = ({ data }: AnalysisResultsProps) => {
             </div>
           </GlassSection>
 
-          {failsafe.issues.length > 0 && (
+          {failsafe.issues?.length > 0 && (
             <GlassSection index={2}>
               <SectionHeader icon={AlertCircle} title="Issues Detected" />
               <ul className="space-y-2">
@@ -199,86 +230,6 @@ const AnalysisResults = ({ data }: AnalysisResultsProps) => {
     );
   }
 
-  // Local state for regenerated sections (only mounts if success === true)
-  const [localSummary, setLocalSummary] = useState(data.meeting_summary);
-  const [localDecisions, setLocalDecisions] = useState(data.key_decisions);
-  const [localRisks, setLocalRisks] = useState(data.risks_and_open_questions);
-  const [localActionItems, setLocalActionItems] = useState(data.action_items);
-
-  // Reset local state if 'data' prop entirely changes (new meeting analyzed)
-  useEffect(() => {
-    setLocalSummary(data.meeting_summary);
-    setLocalDecisions(data.key_decisions);
-    setLocalRisks(data.risks_and_open_questions);
-    setLocalActionItems(data.action_items);
-  }, [data]);
-
-  // ── Failsafe Response ──────────────────────────────────────
-  if (!data.success) {
-    return (
-      <div className="space-y-5">
-        <GlassSection index={0}>
-          <ConfidenceGauge
-            value={data.confidence_score}
-            label={data.confidence_label}
-          />
-        </GlassSection>
-
-        <GlassSection index={1} className="border-l-2 border-l-amber-500/50">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-amber-500/15 shrink-0">
-              <ShieldAlert className="w-5 h-5 text-amber-400" />
-            </div>
-            <div>
-              <h3 className="font-heading font-semibold text-lg text-amber-400">
-                Insufficient Confidence
-              </h3>
-              <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                {data.message}
-              </p>
-            </div>
-          </div>
-        </GlassSection>
-
-        {data.issues.length > 0 && (
-          <GlassSection index={2}>
-            <SectionHeader icon={AlertCircle} title="Issues Detected" />
-            <ul className="space-y-2">
-              {data.issues.map((issue, i) => (
-                <li
-                  key={i}
-                  className="flex gap-2.5 text-sm text-muted-foreground leading-relaxed"
-                >
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-                  {issue}
-                </li>
-              ))}
-            </ul>
-          </GlassSection>
-        )}
-
-        {data.metadata?.warnings?.length > 0 && (
-          <GlassSection index={3}>
-            <SectionHeader icon={AlertTriangle} title="Warnings" />
-            <ul className="space-y-2">
-              {data.metadata.warnings.map((w, i) => (
-                <li
-                  key={i}
-                  className="flex gap-2.5 text-sm text-muted-foreground leading-relaxed"
-                >
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-                  {w}
-                </li>
-              ))}
-            </ul>
-          </GlassSection>
-        )}
-      </div>
-    );
-  }
-
-  const meetingId = data.meeting_id ?? "unknown";
-
   // ── Success Response ───────────────────────────────────────
   return (
     <div>
@@ -314,11 +265,27 @@ const AnalysisResults = ({ data }: AnalysisResultsProps) => {
       )}
       <div ref={reportRef} className="grid grid-cols-1 md:grid-cols-2 gap-5 auto-rows-min">
         {/* Row 1: Confidence + Summary */}
-        <GlassSection index={0}>
+        <GlassSection index={0} className="flex flex-col">
           <ConfidenceGauge
             value={data.confidence_score}
             label={data.confidence_label}
           />
+          {data.metadata && (
+            <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-4 items-end">
+              <div>
+                <p className="text-[11px] font-medium text-white/50 uppercase tracking-wider mb-1">Meeting Duration</p>
+                <p className="text-xl font-heading font-semibold text-white">
+                  {data.metadata.total_duration_human || "Unknown"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[11px] font-medium text-white/50 uppercase tracking-wider mb-1">Participants</p>
+                <p className="text-xl font-heading font-semibold text-white">
+                  {data.metadata.speakers_detected?.length || 0}
+                </p>
+              </div>
+            </div>
+          )}
         </GlassSection>
 
         <motion.div custom={1} initial="hidden" animate="visible" variants={cardVariants}>
@@ -338,9 +305,9 @@ const AnalysisResults = ({ data }: AnalysisResultsProps) => {
               {localSummary.map((point, i) => (
                 <li
                   key={i}
-                  className="flex gap-2.5 text-sm text-secondary-foreground leading-relaxed"
+                  className="flex gap-2.5 text-sm text-white/80 leading-relaxed"
                 >
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-white/80 shrink-0" />
                   {point}
                 </li>
               ))}
@@ -365,15 +332,15 @@ const AnalysisResults = ({ data }: AnalysisResultsProps) => {
             <div className="space-y-2.5">
               {localDecisions.length > 0 ? (
                 localDecisions.map((d) => (
-                  <div key={d.id} className="glass-card p-3.5 border-l-2 border-l-primary/50">
+                  <div key={d.id} className="glass-card p-3.5 border-l-2 border-l-white/40">
                     <p className="font-medium text-sm">{d.title}</p>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    <p className="text-xs text-white/70 mt-1 leading-relaxed">
                       {d.description}
                     </p>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground/60 italic">
+                <p className="text-sm text-white/50 italic">
                   No key decisions identified.
                 </p>
               )}
@@ -399,16 +366,16 @@ const AnalysisResults = ({ data }: AnalysisResultsProps) => {
                 localRisks.map((r) => (
                   <div
                     key={r.id}
-                    className="glass-card p-3.5 border-l-2 border-l-accent/50"
+                    className="glass-card p-3.5 border-l-2 border-l-white/40"
                   >
                     <p className="font-medium text-sm">{r.title}</p>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    <p className="text-xs text-white/70 mt-1 leading-relaxed">
                       {r.description}
                     </p>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground/60 italic">
+                <p className="text-sm text-white/50 italic">
                   No risks or open questions identified.
                 </p>
               )}
@@ -436,21 +403,21 @@ const AnalysisResults = ({ data }: AnalysisResultsProps) => {
                   <div key={item.id} className="glass-card p-4 flex flex-col justify-between space-y-3">
                     <p className="font-medium text-sm">{item.task}</p>
 
-                    <div className="space-y-2 pt-1 border-t border-border/50">
-                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1.5 font-medium text-foreground/80">
-                          <User className="w-3 h-3 text-primary" />
+                    <div className="space-y-2 pt-1 border-t border-white/10">
+                      <div className="flex flex-wrap gap-3 text-xs text-white/70">
+                        <span className="flex items-center gap-1.5 font-medium text-white/90">
+                          <User className="w-3 h-3 text-white/80" />
                           {item.owner}
                         </span>
                         {item.due_date && (
                           <span className="flex items-center gap-1.5">
-                            <Calendar className="w-3 h-3 text-accent" />
+                            <Calendar className="w-3 h-3 text-white/80" />
                             {item.due_date}
                           </span>
                         )}
                       </div>
                       {item.evidence && (
-                        <div className="flex gap-2 text-[11px] text-muted-foreground/70 italic bg-muted/30 p-2 rounded-md">
+                        <div className="flex gap-2 text-[11px] text-white/60 italic bg-white/10 p-2 rounded-md">
                           <Quote className="w-3 h-3 mt-0.5 shrink-0 opacity-50" />
                           <span>"{item.evidence}"</span>
                         </div>
@@ -459,7 +426,7 @@ const AnalysisResults = ({ data }: AnalysisResultsProps) => {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground/60 italic md:col-span-2">
+                <p className="text-sm text-white/50 italic md:col-span-2">
                   No action items identified.
                 </p>
               )}

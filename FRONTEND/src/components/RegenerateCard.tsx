@@ -65,8 +65,8 @@ export default function RegenerateCard({
                         className="absolute inset-0 z-10 bg-background/50 backdrop-blur-sm flex items-center justify-center rounded-xl"
                     >
                         <div className="flex flex-col items-center gap-3">
-                            <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                            <p className="text-sm font-medium text-primary shadow-sm">
+                            <Loader2 className="w-8 h-8 text-white animate-spin" />
+                            <p className="text-sm font-medium text-white shadow-sm">
                                 Regenerating with magic...
                             </p>
                         </div>
@@ -77,15 +77,15 @@ export default function RegenerateCard({
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary/15">
-                        <Icon className="w-4 h-4 text-primary" />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/10">
+                        <Icon className="w-4 h-4 text-white" />
                     </div>
                     <h3 className="font-heading font-semibold text-lg">{title}</h3>
                 </div>
 
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className={`p-2 rounded-full transition-colors flex items-center gap-1.5 text-xs font-medium ${isOpen ? "bg-primary/20 text-primary" : "hover:bg-primary/10 text-muted-foreground hover:text-primary"
+                    className={`p-2 rounded-full transition-colors flex items-center gap-1.5 text-xs font-medium ${isOpen ? "bg-white/20 text-white" : "hover:bg-white/10 text-white/60 hover:text-white"
                         }`}
                     title="Regenerate this section"
                 >
@@ -103,8 +103,8 @@ export default function RegenerateCard({
                         exit={{ height: 0, opacity: 0, marginBottom: 0 }}
                         className="overflow-hidden"
                     >
-                        <div className="p-4 bg-muted/30 border border-primary/20 rounded-xl space-y-3">
-                            <p className="text-xs text-muted-foreground font-medium">
+                        <div className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-3">
+                            <p className="text-xs text-white/70 font-medium">
                                 How should the AI rewrite this section?
                             </p>
 
@@ -114,7 +114,7 @@ export default function RegenerateCard({
                                         <button
                                             key={idx}
                                             onClick={() => handlePromptClick(prompt)}
-                                            className="text-[10px] px-2 py-1 rounded-full bg-background border border-border hover:border-primary/50 text-muted-foreground hover:text-foreground transition-colors"
+                                            className="text-[10px] px-2 py-1 rounded-full bg-white/5 border border-white/10 hover:border-white/30 text-white/60 hover:text-white transition-colors"
                                         >
                                             {prompt}
                                         </button>
@@ -128,13 +128,13 @@ export default function RegenerateCard({
                                     value={instruction}
                                     onChange={(e) => setInstruction(e.target.value)}
                                     placeholder="e.g. Make it 3 bullet points focused on UI"
-                                    className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 transition-shadow"
+                                    className="flex-1 bg-white/10 border border-white/20 text-white placeholder:text-white/40 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-white/50 transition-shadow"
                                     autoFocus
                                 />
                                 <button
                                     type="submit"
                                     disabled={!instruction.trim() || isLoading}
-                                    className="bg-primary text-primary-foreground p-2 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center w-10 shrink-0"
+                                    className="bg-white text-black p-2 rounded-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center w-10 shrink-0"
                                 >
                                     <Send className="w-4 h-4" />
                                 </button>

@@ -37,6 +37,7 @@ const Index = () => {
 
   // ── Analysis state ─────────────────────────────────────────
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [focusTopic, setFocusTopic] = useState("");
@@ -62,8 +63,21 @@ const Index = () => {
     if (!canAnalyze) return;
 
     setIsAnalyzing(true);
+    setProgress(0);
     setResult(null);
     setError(null);
+
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      setProgress((prev) => {
+        if (prev < 30) return prev + 2;
+        if (prev < 60) return prev + 1;
+        if (prev < 85) return prev + 0.5;
+        if (prev < 95) return prev + 0.1;
+        return 95;
+      });
+    }, 200);
 
     try {
       const meetingDate = date ? format(date, "yyyy-MM-dd") : undefined;
@@ -76,11 +90,18 @@ const Index = () => {
       } else {
         data = await analyzeTranscript(file!, meetingDate, attendeeStr, focusStr);
       }
-      setResult(data);
+
+      setProgress(100);
+      setTimeout(() => {
+        setResult(data);
+        setIsAnalyzing(false);
+      }, 500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Analysis failed. Please try again.");
-    } finally {
       setIsAnalyzing(false);
+      setProgress(0);
+    } finally {
+      clearInterval(interval);
     }
   };
 
@@ -268,18 +289,19 @@ const Index = () => {
 
             {isAnalyzing && (
               <div className="space-y-2">
-                <div className="h-1 rounded-full bg-white/20 overflow-hidden">
+                <div className="flex justify-between text-xs text-white/50 mb-1">
+                  <span>Processing transcript with AI...</span>
+                  <span>{Math.round(progress)}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-white/20 overflow-hidden relative">
                   <motion.div
-                    className="h-full rounded-full"
+                    className="h-full rounded-full absolute left-0 top-0"
                     style={{ background: "var(--gradient-accent)" }}
                     initial={{ width: "0%" }}
-                    animate={{ width: "90%" }}
-                    transition={{ duration: 25, ease: "easeOut" }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.2, ease: "linear" }}
                   />
                 </div>
-                <p className="text-xs text-center text-white/50">
-                  Processing transcript with AI...
-                </p>
               </div>
             )}
 
