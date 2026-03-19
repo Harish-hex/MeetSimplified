@@ -1,6 +1,6 @@
-# Synthetix-4.0 Meeting Analyzer
+# MeetSimplified(Meeting Analyzer)
 
-Synthetix-4.0 is an AI-powered web application that helps you quickly understand what happened in a meeting. Instead of manually reading through long transcripts, the app analyzes them automatically and produces a clear summary, highlights key decisions, identifies action items (with owners and due dates), and flags possible risks or unanswered questions.
+MeetSimplified is an AI-powered web application that helps you quickly understand what happened in a meeting. Instead of manually reading through long transcripts, the app analyzes them automatically and produces a clear summary, highlights key decisions, identifies action items (with owners and due dates), and flags possible risks or unanswered questions.
 
 The interface uses a clean **Minimalist UI**, and it also allows you to regenerate or refine parts of the AI analysis interactively.
 
